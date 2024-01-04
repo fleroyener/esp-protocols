@@ -226,11 +226,13 @@ command_result get_operator_name(CommandableIf *t, std::string &operator_name, i
     ESP_LOGV(TAG, "%s", __func__ );
     std::string_view out;
     auto ret = generic_get_string(t, "AT+COPS?\r", out, 75000);
+    ESP_LOGD(TAG, "Operator name response %.*s", static_cast<int>(out.size()), out.data());
     if (ret != command_result::OK) {
         return ret;
     }
     auto pos = out.find("+COPS");
-    auto property = 0;
+    pos = out.find(',', ++pos); // skip +COPS: <mode>
+    auto property = 1;
     while (pos != std::string::npos) {
         // Looking for: +COPS: <mode>[, <format>[, <oper>[, <act>]]]
         if (property++ == 2) {  // operator name is after second comma (as a 3rd property of COPS string)
@@ -277,7 +279,9 @@ command_result set_pdp_context(CommandableIf *t, PdpContext &pdp)
 command_result set_data_mode(CommandableIf *t)
 {
     ESP_LOGV(TAG, "%s", __func__ );
-    return generic_command(t, "ATD*99##\r", "CONNECT", "ERROR", 5000);
+    const auto pass = std::list<std::string_view>({"NO CARRIER", "OK", "CONNECT"});
+    const auto fail = std::list<std::string_view>({"ERROR"});
+    return generic_command(t, "ATD*99#\r", pass, fail, 5000);
 }
 
 command_result set_data_mode_sim8xx(CommandableIf *t)
@@ -289,7 +293,9 @@ command_result set_data_mode_sim8xx(CommandableIf *t)
 command_result resume_data_mode(CommandableIf *t)
 {
     ESP_LOGV(TAG, "%s", __func__ );
-    return generic_command(t, "ATO\r", "CONNECT", "ERROR", 5000);
+    const auto pass = std::list<std::string_view>({"NO CARRIER", "OK"});
+    const auto fail = std::list<std::string_view>({"ERROR"});
+    return generic_command(t, "ATO0\r", pass, fail, 5000);
 }
 
 command_result set_command_mode(CommandableIf *t)
