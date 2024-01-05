@@ -135,7 +135,8 @@ command_result power_down_sim8xx(CommandableIf *t)
 command_result reset(CommandableIf *t)
 {
     ESP_LOGV(TAG, "%s", __func__ );
-    return generic_command(t,  "AT+CRESET\r", "PB DONE", "ERROR", 60000);
+    generic_command_common(t, "ATZ\r");
+    return generic_command(t, "AT+CFUN=1,1\r", "RDY", "ERROR", 15000);
 }
 
 command_result set_baud(CommandableIf *t, int baud)
