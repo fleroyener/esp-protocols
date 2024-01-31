@@ -107,6 +107,11 @@ public:
         return get_operator_name(name, dummy_act);
     }
 
+    command_result get_neighbor_cell_info(std::string &info)
+    {
+        int dummy_act;
+        return get_neighbor_cell_info(info, dummy_act);
+    }
     /**
      * @brief Common DCE commands generated from the API AT list
      */

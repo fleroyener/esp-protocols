@@ -318,6 +318,12 @@ extern "C" void app_main(void)
         CHECK_ERR(dce->get_operator_name(operator_name, act), ESP_LOGI(TAG, "OK. Operator name: %s", operator_name.c_str()));
     });
 
+    const ConsoleCommand GetNeighborCellInfo("get_neighbor_cell_info", "reads the neigbor cells info", no_args, [&](ConsoleCommand * c) {
+        std::string cells;
+        ESP_LOGI(TAG, "Reading neighbor cells info...");
+        CHECK_ERR(dce->get_neighbor_cell_info(cells), ESP_LOGI(TAG, "OK. Neighbor cells info: %d", cells.size()));
+    });
+
     const struct GenericCommandArgs {
         GenericCommandArgs():
             cmd(STR1, nullptr, nullptr, "<command>", "AT command to send to the modem"),

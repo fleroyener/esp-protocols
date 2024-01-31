@@ -255,6 +255,44 @@ command_result get_operator_name(CommandableIf *t, std::string &operator_name, i
     return command_result::FAIL;
 }
 
+// get neighbor cell info
+command_result get_neighbor_cell_info(CommandableIf *t, std::string &out, int &act)
+{
+    ESP_LOGV(TAG, "%s", __func__ );
+    std::string command = "AT+QCELL?\r";
+    std::string qcell_list = "";
+    std::string output = "";
+    int timeout_ms = 5000;
+
+    set_radio_state(t, 0);
+    qcell_list = "";
+    
+    return t->command(command, [&](uint8_t *data, size_t len) {
+        size_t pos = 0;
+        std::string_view response((char *)data, len);
+        while ((pos = response.find('\n')) != std::string::npos) {
+            std::string_view token = response.substr(0, pos);
+            for (auto it = token.end() - 1; it > token.begin(); it--) // strip trailing CR or LF
+                if (*it == '\r' || *it == '\n') {
+                    token.remove_suffix(1);
+                }
+            ESP_LOGV(TAG, "Token: {%.*s}\n", static_cast<int>(token.size()), token.data());
+            // concat qcell_list with response
+            qcell_list += response;
+
+            if (token.find("OK") != std::string::npos) {
+                return command_result::OK;
+            } else if (token.find("ERROR") != std::string::npos) {
+                return command_result::FAIL;
+            } else if (token.size() > 2) {
+                output = qcell_list;
+            }
+            response = response.substr(pos + 1);
+        }
+        return command_result::TIMEOUT;
+    }, timeout_ms);
+}
+
 command_result set_echo(CommandableIf *t, bool on)
 {
     ESP_LOGV(TAG, "%s", __func__ );

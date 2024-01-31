@@ -32,6 +32,14 @@ ESP_MODEM_DECLARE_DCE_COMMAND(sync, command_result, 0) \
 ESP_MODEM_DECLARE_DCE_COMMAND(get_operator_name, command_result, 2, STRING_OUT(p1, name), INT_OUT(p2, act)) \
     \
 /**
+ * @brief Reads the neighbor cell infos
+ * @param[out] name operator name
+ * @param[out] act access technology
+ * @return OK, FAIL or TIMEOUT
+ */ \
+ESP_MODEM_DECLARE_DCE_COMMAND(get_neighbor_cell_info, command_result, 2, STRING_OUT(p1, info), INT_OUT(p2, act)) \
+    \
+/**
  * @brief Stores current user profile
  * @return OK, FAIL or TIMEOUT
  */ \

@@ -250,6 +250,21 @@ extern "C" esp_err_t esp_modem_get_operator_name(esp_modem_dce_t *dce_wrap, char
     return ret;
 }
 
+extern "C" esp_err_t esp_modem_get_neighbor_cell_info(esp_modem_dce_t *dce_wrap, char *p_info, int *p_act)
+{
+    if (dce_wrap == nullptr || dce_wrap->dce == nullptr || p_info == nullptr || p_act == nullptr) {
+        return ESP_ERR_INVALID_ARG;
+    }
+    std::string info;
+    int act;
+    auto ret = command_response_to_esp_err(dce_wrap->dce->get_neighbor_cell_info(info, act));
+    if (ret == ESP_OK && !info.empty()) {
+        strlcpy(p_info, info.c_str(), ESP_MODEM_C_API_STR_MAX);
+        *p_act = act;
+    }
+    return ret;
+}
+
 extern "C" esp_err_t esp_modem_get_module_name(esp_modem_dce_t *dce_wrap, char *p_name)
 {
     if (dce_wrap == nullptr || dce_wrap->dce == nullptr) {
